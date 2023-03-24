@@ -1,6 +1,6 @@
 // 封装axios
 import axios from 'axios'
-
+import { message } from 'antd'
 const http = axios.create({
   baseURL: 'http://192.168.1.5:8080',
   timeout: 5000,
@@ -37,7 +37,8 @@ http.interceptors.response.use((response) => {
     // 设置请求时发生了一些问题，触发了错误
     console.log('Error', error.message)
   }
-  console.log(error.config)
-  return Promise.reject(error)
+  console.log(error)
+  return message.error(error.response.data.messages)
+  // return Promise.reject(error.response.data.messages)
 })
 export { http }

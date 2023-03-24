@@ -8,11 +8,8 @@ class LoginStore {
   }
 
   // 登录
-  login = async ({ username, password }) => {
-    const res = await http.post('/admin/toLogin', {
-      username,
-      password
-    })
+  login = async () => {
+    const res = await http.post('/admin/hello123123')
 
     if (res.status !== 200) {
       throw new Error('请稍后再试')
