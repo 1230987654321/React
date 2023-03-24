@@ -1,31 +1,64 @@
-import { Card, Form, Input, Button, Checkbox } from 'antd'
+import { Card, Form, Input, Button, message } from 'antd'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
+import { useStore } from '@/store'
+import { useNavigate } from 'react-router-dom'
+
 import logo from '@/assets/logo.png'
+
 import './index.scss'
 
+
 const Login = () => {
+  const { loginStore } = useStore()
+  const [form] = Form.useForm()
+  const navigate = useNavigate()
+  async function onFinish (values) {
+    try {
+      await loginStore.login(values)
+      navigate('/')
+    } catch (error) {
+      message.error(error.message)
+    }
+
+  }
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo)
+  }
+
   return (
     <div className="login">
       <Card className="login-container">
         <img className="login-logo" src={logo} alt="" />
         <Form
-          initialValues={{
-            remember: true,
-          }}
+          form={form}
+          name="basic"
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
         >
-          <Form.Item>
-            <Input size="large" placeholder="请输入手机号" />
-          </Form.Item>
-          <Form.Item>
-            <Input size="large" placeholder="请输入验证码" />
+          <Form.Item
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "请输入用户名!",
+              },
+            ]}
+          >
+            <Input size="large" prefix={<UserOutlined className="site-form-item-icon" />} placeholder="请输入用户名" />
           </Form.Item>
           <Form.Item
-            name="remember"
-            valuePropName="checked"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "请输入密码!",
+              },
+            ]}
           >
-            <Checkbox className="login-checkbox-label">
-              我已阅读并同意「用户协议」和「隐私条款」
-            </Checkbox>
+            <Input size="large" prefix={<LockOutlined className="site-form-item-icon" />} type="password" placeholder="请输入密码" />
           </Form.Item>
+
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large" block>
               登录

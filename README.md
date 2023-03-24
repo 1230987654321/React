@@ -40,6 +40,14 @@ antd 组件库
 
 使用 craco 配置别名路径,可以使用 npm run eject 来释放配置
 
+### npm install axios
+
+安装 axios
+
+### npm install mobx mobx-react-lite
+
+安装 mobx
+
 ## 可用脚本
 
 在项目目录中，可以运行：
