@@ -4,17 +4,17 @@
 
 ## 项目目录
 
-public 静态资源\
-src 应用程序的源代码\
- /assets 项目资源文件，比如，图片 等\
- /components 通用组件\
- /pages 页面\
- /store mobx 状态仓库\
- /utils 工具，比如，token、axios 的封装等\
- App.js 根组件\
- index.css 全局样式\
- index.js 项目入口\
-craco.config.js Create React App 配置文件
+public            静态资源\
+src               应用程序的源代码\
+ |- assets        项目资源文件，比如，图片 等\
+ |- components    通用组件\
+ |- pages         页面\
+ |- store         mobx 状态仓库\
+ |- utils         工具，比如，token、axios 的封装等\
+ App.js           根组件\
+ index.css        全局样式\
+ index.js         项目入口\
+craco.config.js   Create React App 配置文件
 
 ## 前置准备(安装依赖)
 
