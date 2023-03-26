@@ -7,19 +7,19 @@ import logo from '@/assets/logo.png'
 
 import './index.scss'
 
-
 const Login = () => {
   const { loginStore } = useStore()
   const [form] = Form.useForm()
   const navigate = useNavigate()
   async function onFinish (values) {
     try {
+      // 登录用户并重定向到主页
       await loginStore.login(values)
       navigate('/')
     } catch (error) {
+      // 向用户显示错误消息
       message.error(error.message)
     }
-
   }
 
   const onFinishFailed = (errorInfo) => {

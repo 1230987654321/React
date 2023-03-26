@@ -1,6 +1,7 @@
 // 封装axios
 import axios from 'axios'
 import { message } from 'antd'
+import { getToken } from '@/utils'
 const http = axios.create({
   baseURL: 'http://192.168.1.5:8080',
   timeout: 5000,
@@ -10,6 +11,10 @@ const http = axios.create({
 })
 // 添加请求拦截器
 http.interceptors.request.use((config) => {
+  const token = getToken()
+  if (token) {
+    config.headers.token = `${token}`
+  }
   return config
 }, (error) => {
   console.log(error)
