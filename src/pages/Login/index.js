@@ -18,7 +18,7 @@ const Login = () => {
       navigate('/')
     } catch (error) {
       // 向用户显示错误消息
-      message.error(error.message)
+      message.error(error)
     }
   }
 
