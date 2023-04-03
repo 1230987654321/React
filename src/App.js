@@ -7,10 +7,8 @@ import { AuthRoute } from '@/components/AuthRoute'
 import React, { useEffect, useState } from 'react'
 import { useStore } from '@/store'
 import '@/App.css'
-import { Spin } from 'antd'
 // 配置路由规则
 function App () {
-  const [isLoading, setIsLoading] = useState(true)
   const [menuRoutes, setMenuRoutes] = useState([])
   const { menuStore } = useStore()
   useEffect(() => {
@@ -39,19 +37,11 @@ function App () {
         setMenuRoutes(newMenuRoutes)
       } catch (error) {
         console.error(error)
-      } finally {
-        setIsLoading(false)
       }
     }
 
     fetchMenuList()
   }, [menuStore])
-
-  if (isLoading) {
-    return <Spin size="large" />
-    // return <div>Loading...</div>
-  }
-
   return (
     <HistoryRouter history={history}>
       <div className="App">
@@ -62,9 +52,6 @@ function App () {
             </AuthRoute>
           } >
             {menuRoutes}
-            {/* <Route path="/" element={<Pages.Home />} ></Route>
-            <Route path="/role" element={<Pages.Role />} ></Route>
-            <Route path="/role/index" element={<Pages.Role />} ></Route> */}
           </Route>
           <Route path="/login" element={<Pages.Login />} ></Route>
         </Routes>

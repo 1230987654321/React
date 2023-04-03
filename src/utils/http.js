@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { clearToken, getToken, history } from '@/utils'
 const http = axios.create({
-  baseURL: 'http://192.168.1.112:8080/admin',
+  baseURL: 'http://192.168.1.7:8080/admin',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded'
