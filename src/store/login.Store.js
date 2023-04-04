@@ -1,6 +1,8 @@
 // 登录模块
 import { makeAutoObservable } from "mobx"
-import { http, setToken, getToken, clearToken } from '@/utils'
+import { login, loginOut } from '@/api'
+import { setToken, getToken, clearToken } from '@/utils'
+import { message } from 'antd'
 class LoginStore {
   token = getToken() || ''
   constructor() {
@@ -8,15 +10,23 @@ class LoginStore {
   }
 
   // 登录
-  login = async ({ username, password }) => {
-    const res = await http.post('/toLogin', { username, password })
-    this.token = res.data.data
-    setToken(this.token)
+  async login (data) {
+    try {
+      const response = await login(data)
+      this.token = response
+      setToken(this.token)
+    } catch (error) {
+      // handle error
+
+      console.log("loginStore错误")
+      message.error(error)
+      throw error
+    }
   }
 
   // 退出登录
-  loginOut = async () => {
-    await http.get('/logout')
+  async loginOut () {
+    await loginOut()
     this.token = ''
     clearToken()
   }

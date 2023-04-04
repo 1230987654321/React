@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '@/store'
+import { loginOut } from '@/api'
 import Icon, * as Icons from '@ant-design/icons'
 import './index.scss'
 
@@ -10,7 +11,7 @@ const { Header, Sider } = Layout
 
 const GeekLayout = () => {
   // 获取store
-  const { userStore, loginStore, menuStore } = useStore()
+  const { userStore, menuStore } = useStore()
   // 侧边栏展开的key
   const [openKeys, setOpenKeys] = useState(["/"])
   // 获取当前浏览器上的路径地址
@@ -20,10 +21,8 @@ const GeekLayout = () => {
 
   // 获取用户数据
   useEffect(() => {
-    try {
-      userStore.getUserInfo()
-      menuStore.getMenuList(1)
-    } catch { }
+    userStore.getUserInfo()
+    menuStore.getMenuList(1)
   }, [userStore, menuStore])
   // 刷新的时候侧边栏展开
   useEffect(() => {
@@ -58,10 +57,11 @@ const GeekLayout = () => {
   }
   // 路由跳转
   const navigate = useNavigate()
+
   // 退出登录
   const onLogout = async () => {
     try {
-      await loginStore.loginOut()
+      await loginOut()
       navigate('/login')
     } catch (error) {
       // handle error

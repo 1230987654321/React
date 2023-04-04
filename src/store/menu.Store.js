@@ -1,15 +1,21 @@
 // 用户模块
 import { makeAutoObservable } from "mobx"
-import { http } from '@/utils'
-
+import { getMenuList } from '@/api'
+import { message } from 'antd'
 class MenuStore {
   menuList = []
   constructor() {
     makeAutoObservable(this)
   }
   getMenuList = async (hidden) => {
-    const res = await http.get('/menu/getAllMenu?hidden=' + hidden)
-    this.menuList = res.data.data
+    try {
+      const res = await getMenuList(hidden)
+      this.menuList = res
+    } catch (error) {
+      console.log("menuStore错误")
+      // handle error
+      message.error(error)
+    }
   }
 }
 

@@ -1,27 +1,27 @@
 import { Card, Form, Input, Button, message } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { useStore } from '@/store'
+import { setToken } from '@/utils'
 import { useNavigate } from 'react-router-dom'
-
+import { login } from '@/api'
 import logo from '@/assets/logo.png'
 
 import './index.scss'
 
 const Login = () => {
-  const { loginStore } = useStore()
+  // const { loginStore } = useStore()
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  async function onFinish (values) {
+  const onFinish = async (values) => {
     try {
       // 登录用户并重定向到主页
-      await loginStore.login(values)
+      const result = await login(values)
+      setToken(result)
       navigate('/')
     } catch (error) {
       // 向用户显示错误消息
       message.error(error)
     }
   }
-
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo)
   }

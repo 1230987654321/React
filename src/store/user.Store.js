@@ -1,15 +1,20 @@
 // 用户模块
 import { makeAutoObservable } from "mobx"
-import { http } from '@/utils'
-
+import { getUserInfo } from '@/api'
+import { message } from 'antd'
 class UserStore {
   userInfo = {}
   constructor() {
     makeAutoObservable(this)
   }
   async getUserInfo () {
-    const res = await http.get('/admin/getInfo')
-    this.userInfo = res.data.data
+    try {
+      const res = await getUserInfo()
+      this.userInfo = res
+    } catch (error) {
+      // handle error
+      message.error(error)
+    }
   }
 }
 

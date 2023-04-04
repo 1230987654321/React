@@ -2,6 +2,7 @@
 import { http } from './http'
 import { getToken, setToken, clearToken } from './token'
 import { HistoryRouter, history } from './history'
+import routes from './routes'
 // 然后再统一导出
 export {
   http,
@@ -9,5 +10,6 @@ export {
   setToken,
   clearToken,
   HistoryRouter,
-  history
+  history,
+  routes
 }
