@@ -2,50 +2,63 @@ import { Layout, Menu, Popconfirm, message } from 'antd'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useStore } from '@/store'
-import { loginOut } from '@/api'
+import { loginOut, getUserInfo, getMenuList } from '@/api'
 import Icon, * as Icons from '@ant-design/icons'
 import './index.scss'
 
 const { Header, Sider } = Layout
 
 const GeekLayout = () => {
-  // 获取store
-  const { userStore, menuStore } = useStore()
-  // 侧边栏展开的key
+  // 侧边栏展开的key初始化数据
   const [openKeys, setOpenKeys] = useState(["/"])
   // 获取当前浏览器上的路径地址
   const location = useLocation()
   // 这里是当前浏览器上的路径地址
   const selectedKey = location.pathname
+  // 定义登录用户初始数据
+  const [userInfo, setUserInfo] = useState({})
+  // 定义侧边栏菜单初始数据
+  const [menuList, setMenuList] = useState([])
 
-  // 获取用户数据
   useEffect(() => {
-    userStore.getUserInfo()
-    menuStore.getMenuList(1)
-  }, [userStore, menuStore])
-  // 刷新的时候侧边栏展开
-  useEffect(() => {
+    // 获取用户数据
+    getUserInfo().then(res => {
+      setUserInfo(res)
+    }).then(() => {
+      // getMenuData()
+      // 获取侧边栏菜单数据
+      getMenuList(1).then(res => {
+        setMenuList(
+          // 这里是侧边栏菜单数据
+          res.map((item) => {
+            return {
+              key: item.path,
+              icon: item.icon ? <Icon component={Icons[item.icon]} /> : null,
+              label: item.title,
+              children: item.children && item.children.map((itemChildren) => {
+                return {
+                  key: item.path + "/" + itemChildren.path,
+                  label: itemChildren.title,
+                }
+              })
+            }
+          })
+        )
+      }).catch(err => {
+        message.error(err)
+      })
+    }).catch(err => {
+      message.error(err)
+    })
+    // 刷新的时候判断侧边栏展开
     if (selectedKey.split('/').length > 2) {
       setOpenKeys(['/' + selectedKey.split('/')[1]])
     }
   }, [selectedKey])
-  // 侧边栏菜单
-  const menuList = menuStore.menuList.map((item) => {
-    return {
-      key: item.path,
-      icon: item.icon ? <Icon component={Icons[item.icon]} /> : null,
-      label: item.title,
-      children: item.children && item.children.map((itemChildren) => {
-        return {
-          key: item.path + "/" + itemChildren.path,
-          label: itemChildren.title,
-        }
-      })
-    }
-  })
+
   // 侧边栏一级菜单的key
   const firstLevelKeys = menuList.map(item => item.key)
+
   // 侧边栏展开
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1)
@@ -55,6 +68,7 @@ const GeekLayout = () => {
       setOpenKeys(latestOpenKey ? [latestOpenKey] : [])
     }
   }
+
   // 路由跳转
   const navigate = useNavigate()
 
@@ -65,7 +79,7 @@ const GeekLayout = () => {
       navigate('/login')
     } catch (error) {
       // handle error
-      message.error(error.message)
+      message.error(error)
     }
   }
   return (
@@ -73,10 +87,10 @@ const GeekLayout = () => {
       <Header className="header">
         <div className="logo" />
         <div className="user-info">
-          <span className="user-name">{userStore.userInfo.username}</span>
+          <span className="user-name">{userInfo.username}</span>
           <span className="user-logout">
             <Popconfirm title="是否确认退出？" okText="退出" cancelText="取消" onConfirm={onLogout}>
-              <Icon component={Icons.LogoutOutlined} />退出
+              <Icon component={Icons.LogoutOutlined} /> &nbsp;退出
             </Popconfirm>
           </span>
         </div>
