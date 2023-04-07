@@ -1,7 +1,7 @@
-import { Space, Button, Table, Drawer, Form, Input, Tree, message, Modal } from 'antd'
+import { Space, Button, Table, Drawer, Form, Input, message, Modal, Select } from 'antd'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { getRolePageList, getMenuList, getRoleById, updateRoleById, addRole, deleteRoleById } from '@/api'
+import { getAdminPageList, getAdminById, getAllRole, updateRoleById, addRole, deleteRoleById } from '@/api'
 // 获取查询参数
 const getRandomuserParams = (params) => ({
   size: params.pagination?.pageSize,
@@ -17,7 +17,7 @@ const formLayout = {
     span: 20,
   },
 }
-const Role = () => {
+const RoleAccount = () => {
   // 表格列
   const columns = [
     {
@@ -28,13 +28,13 @@ const Role = () => {
       render: (_text, _record, index) => `${(tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1}`,
     },
     {
-      title: '名称',
-      dataIndex: 'title',
+      title: '账号',
+      dataIndex: 'username',
       width: '20%',
     },
     {
-      title: '描述',
-      dataIndex: 'description',
+      title: '角色',
+      dataIndex: 'roleName',
       width: '40%',
     },
     {
@@ -46,16 +46,21 @@ const Role = () => {
       key: 'action',
       width: '240px',
       aligen: 'center',
-      render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => getRoleInfo(record.id)} key={`a-${record.id}`} type="primary" >
-            编辑
-          </Button>
-          <Button type="primary" onClick={() => removeRoleInfo(record.id)} danger>
-            删除
-          </Button>
-        </Space>
-      ),
+      render: (_, record) => {
+        if (record.id === 1) {
+          return
+        }
+        return (
+          <Space size="middle">
+            <Button onClick={() => fetchAdminInfo(record.id)} key={`a-${record.id}`} type="primary" >
+              编辑
+            </Button>
+            <Button type="primary" onClick={() => removeRoleInfo(record.id)} danger>
+              删除
+            </Button>
+          </Space>
+        )
+      },
     },
   ]
   // 数据
@@ -82,22 +87,17 @@ const Role = () => {
   }
   // 加载状态
   const [loading, setLoading] = useState(false)
-  // 权限菜单
-  const [menuList, setMenuList] = useState()
+
   // form表单
   const [form] = Form.useForm()
-  // 初始 展开的树节点
-  const [expandedKeys, setExpandedKeys] = useState([])
-  // 初始 选中的树节点
-  const [checkedKeys, setCheckedKeys] = useState([1])
-  // 自动 展开父节点
-  const [autoExpandParent, setAutoExpandParent] = useState(true)
+
+  const [roleData, setRoleData] = useState([])
   // 抽屉状态
   const [open, setOpen] = useState(false)
   // 获取数据
-  const fetchRoleData = async () => {
+  const fetchAdminData = async () => {
     setLoading(true)
-    getRolePageList(qs.stringify(queryParameters))
+    getAdminPageList(qs.stringify(queryParameters))
       .then(res => {
         // 处理数据
         setData(res.records)
@@ -116,53 +116,32 @@ const Role = () => {
         setLoading(false)
       )
   }
-  // 获取权限菜单
-  const fetchMenuData = async () => {
-    getMenuList(0).then(res => {
-      setMenuList(
-        // 这里是权限菜单
-        res.map((item) => {
-          return {
-            key: item.id,
-            title: item.title,
-            disabled: item.id === 1 ? true : false,
-            children: item.children && item.children.map((itemChildren) => {
-              return {
-                key: itemChildren.id,
-                title: itemChildren.title,
-              }
-            })
-          }
-        })
-      )
+  const fetchRoleData = async () => {
+    getAllRole().then(res => {
+      setRoleData(res)
     }).catch(err => {
       message.error(err)
     })
   }
   // 获取数据
   useEffect(() => {
+    fetchAdminData()
     fetchRoleData()
-    fetchMenuData()
-  }, [setMenuList])//eslint-disable-line
-
+  }, [setRoleData]) // eslint-disable-line
   // 获取角色详情
-  const getRoleInfo = async (id) => {
-    setCheckedKeys([1])
+  const fetchAdminInfo = async (id) => {
     if (id === 0) {
       form.setFieldsValue({
         id: 0,
         title: '',
-        menuIdList: [1],
         description: '',
       })
       // 打开抽屉
       showDrawer()
     } else {
-      getRoleById(id).then(res => {
+      getAdminById(id).then(res => {
         // 设置表单数据
         form.setFieldsValue(res)
-        // 设置展开的树节点
-        setCheckedKeys(res.menuIdList)
         // 打开抽屉
         showDrawer()
       }).catch(err => {
@@ -178,28 +157,14 @@ const Role = () => {
   const onClose = () => {
     setOpen(false)
   }
-  // 点击树节点触发
-  const onExpand = (expandedKeysValue) => {
-    // 如果未将autoExpandParent设置为false，则如果子级展开，则父级不能折叠
-    // 或者，您可以删除所有展开的子密钥。
-    setExpandedKeys(expandedKeysValue)
-    setAutoExpandParent(false)
-  }
-  // 点击复选框触发
-  const onCheck = (checkedKeysValue) => {
-    setCheckedKeys(checkedKeysValue)
-    // 同时设置表单数据
-    form.setFieldsValue({
-      menuIdList: checkedKeysValue,
-    })
-  }
+
   // 提交表单
   const onFinish = async (values) => {
-    values.menuId = values.menuIdList.join(',')
+    values.controlId = values.controlIdList.join(',')
     if (values.id === 0) {
       addRole(values).then(res => {
         message.success(res.message)
-        fetchRoleData()
+        fetchAdminData()
         onClose()
       }).catch(err => {
         message.error(err)
@@ -207,7 +172,7 @@ const Role = () => {
     } else {
       updateRoleById(values).then(res => {
         message.success(res.message)
-        fetchRoleData()
+        fetchAdminData()
         onClose()
       }).catch(err => {
         message.error(err)
@@ -224,7 +189,7 @@ const Role = () => {
       onOk: () => {
         deleteRoleById(id).then(res => {
           message.success(res.message)
-          fetchRoleData()
+          fetchAdminData()
         }).catch(err => {
           message.error(err)
         })
@@ -234,7 +199,7 @@ const Role = () => {
   return (
     <>
       <Space wrap>
-        <Button type="primary" onClick={() => getRoleInfo(0)}>添加角色</Button>
+        <Button type="primary" onClick={() => fetchAdminInfo(0)}>添加账号</Button>
       </Space>
       <Table
         columns={columns}
@@ -294,15 +259,14 @@ const Role = () => {
           <Form.Item name="description" label="描述">
             <Input.TextArea />
           </Form.Item>
-          <Form.Item name="menuIdList" label="权限">
-            <Tree
-              checkable
-              onExpand={onExpand}
-              expandedKeys={expandedKeys}
-              autoExpandParent={autoExpandParent}
-              onCheck={onCheck}
-              checkedKeys={checkedKeys}
-              treeData={menuList}
+          <Form.Item name="roleId" label="角色">
+            <Select
+              labelInValue
+              style={{
+                width: 120,
+              }}
+              // onChange={handleChange}
+              options={roleData}
             />
           </Form.Item>
         </Form>
@@ -310,4 +274,4 @@ const Role = () => {
     </>
   )
 }
-export default Role
+export default RoleAccount 
