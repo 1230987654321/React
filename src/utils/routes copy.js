@@ -26,6 +26,7 @@ const PrivateRoute = (props) => {
         }
       }
     })
+    console.log(arr)
     return arr
   }
   // 查询菜单列表
@@ -46,4 +47,6 @@ const PrivateRoute = (props) => {
     }
   ])
 }
+console.log(PrivateRoute)
+
 export default inject('user')(observer(PrivateRoute))

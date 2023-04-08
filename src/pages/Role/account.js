@@ -1,7 +1,7 @@
 import { Space, Button, Table, Drawer, Form, Input, message, Modal, Select } from 'antd'
 import qs from 'qs'
-import { useEffect, useState } from 'react'
-import { getAdminPageList, getAdminById, getAllRole, updateRoleById, addRole, deleteRoleById } from '@/api'
+import { useEffect, useState, useRef } from 'react'
+import { getAdminPageList, getAdminById, getAllRole, updateAdminById, addAdmin, deleteAdminById } from '@/api'
 // 获取查询参数
 const getRandomuserParams = (params) => ({
   size: params.pagination?.pageSize,
@@ -55,7 +55,7 @@ const RoleAccount = () => {
             <Button onClick={() => fetchAdminInfo(record.id)} key={`a-${record.id}`} type="primary" >
               编辑
             </Button>
-            <Button type="primary" onClick={() => removeRoleInfo(record.id)} danger>
+            <Button type="primary" onClick={() => removeAdminInfo(record.id)} danger>
               删除
             </Button>
           </Space>
@@ -90,7 +90,7 @@ const RoleAccount = () => {
 
   // form表单
   const [form] = Form.useForm()
-
+  const formRef = useRef(null)
   const [roleData, setRoleData] = useState([])
   // 抽屉状态
   const [open, setOpen] = useState(false)
@@ -130,11 +130,15 @@ const RoleAccount = () => {
   }, [setRoleData]) // eslint-disable-line
   // 获取角色详情
   const fetchAdminInfo = async (id) => {
+    if (roleData.length === 0) {
+      return message.error('请先添加角色')
+    }
     if (id === 0) {
       form.setFieldsValue({
         id: 0,
-        title: '',
-        description: '',
+        username: '',
+        password: '',
+        roleId: ''
       })
       // 打开抽屉
       showDrawer()
@@ -145,7 +149,7 @@ const RoleAccount = () => {
         // 打开抽屉
         showDrawer()
       }).catch(err => {
-        console.log(err)
+        message.error(err)
       })
     }
   }
@@ -155,14 +159,15 @@ const RoleAccount = () => {
   }
   // 关闭抽屉
   const onClose = () => {
+    // 重置表单
+    formRef.current.resetFields()
     setOpen(false)
   }
 
   // 提交表单
   const onFinish = async (values) => {
-    values.controlId = values.controlIdList.join(',')
     if (values.id === 0) {
-      addRole(values).then(res => {
+      addAdmin(values).then(res => {
         message.success(res.message)
         fetchAdminData()
         onClose()
@@ -170,7 +175,7 @@ const RoleAccount = () => {
         message.error(err)
       })
     } else {
-      updateRoleById(values).then(res => {
+      updateAdminById(values).then(res => {
         message.success(res.message)
         fetchAdminData()
         onClose()
@@ -180,14 +185,14 @@ const RoleAccount = () => {
     }
   }
   // 删除角色
-  const removeRoleInfo = async (id) => {
+  const removeAdminInfo = async (id) => {
     Modal.confirm({
       title: '提示',
-      content: '确定删除该角色吗？',
+      content: '确定删除该账号吗？',
       okText: '确定',
       cancelText: '取消',
       onOk: () => {
-        deleteRoleById(id).then(res => {
+        deleteAdminById(id).then(res => {
           message.success(res.message)
           fetchAdminData()
         }).catch(err => {
@@ -232,6 +237,7 @@ const RoleAccount = () => {
         <Form
           {...formLayout}
           form={form}
+          ref={formRef}
           name="control-hooks"
           onFinish={onFinish}
           style={{
@@ -246,8 +252,8 @@ const RoleAccount = () => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="title"
-            label="名称"
+            name="username"
+            label="账号"
             rules={[
               {
                 required: true,
@@ -256,16 +262,25 @@ const RoleAccount = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea />
-          </Form.Item>
-          <Form.Item name="roleId" label="角色">
+          {form.getFieldValue('id') === 0 ? (
+            <Form.Item name="password" label="密码"
+              rules={[
+                {
+                  required: form.getFieldValue("id") === 0,
+                },
+              ]}>
+              <Input />
+            </Form.Item>
+          ) : null}
+          <Form.Item name="roleId" label="角色" rules={[
+            {
+              required: true,
+            },
+          ]}>
             <Select
-              labelInValue
               style={{
                 width: 120,
               }}
-              // onChange={handleChange}
               options={roleData}
             />
           </Form.Item>

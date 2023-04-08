@@ -2,8 +2,8 @@
 import { Route, Routes } from 'react-router-dom'
 import { HistoryRouter, history, routes } from '@/utils'
 // 导入页面组件
-import Login from '@/pages/Login'
-import Layout from '@/pages/Layout'
+import Login from '@/pages/login'
+import Layout from '@/pages/layout'
 import { AuthRoute } from '@/components/AuthRoute'
 import React from 'react'
 import '@/App.css'
@@ -18,9 +18,9 @@ function App () {
               <Layout />
             </AuthRoute>
           } >
-            {routes.map((route) => (
+            {/* {routes.map((route) => (
               <Route key={route.path} path={route.path} element={<route.component />} />
-            ))}
+            ))} */}
             {/* {menuRoutes} */}
           </Route>
           <Route path="/login" element={<Login />} ></Route>
