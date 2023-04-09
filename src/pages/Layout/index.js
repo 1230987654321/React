@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite'
 import { loginOut, getUserInfo, getMenuList } from '@/api'
 import Icon, * as Icons from '@ant-design/icons'
 import './index.scss'
-
 const { Header, Sider } = Layout
 
 const GeekLayout = () => {
